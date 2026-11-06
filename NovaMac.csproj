@@ -1,0 +1,55 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <!-- Compilado exclusivamente para Windows 10 (1809+) e Windows 11 -->
+    <TargetFramework>net8.0-windows10.0.19041.0</TargetFramework>
+    <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
+    <SupportedOSPlatformVersion>10.0.17763.0</SupportedOSPlatformVersion>
+    <RootNamespace>NovaMac</RootNamespace>
+    <AssemblyName>NovaMac</AssemblyName>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>app.ico</ApplicationIcon>
+    <Platforms>x64;ARM64</Platforms>
+    <RuntimeIdentifiers>win-x64;win-arm64</RuntimeIdentifiers>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <UseWinUI>true</UseWinUI>
+    <EnableMsixTooling>true</EnableMsixTooling>
+    <WindowsPackageType Condition="'$(WindowsPackageType)' == ''">None</WindowsPackageType>
+    <WindowsAppSDKSelfContained Condition="'$(WindowsPackageType)' == 'None'">true</WindowsAppSDKSelfContained>
+    <AppxPackageSigningEnabled>false</AppxPackageSigningEnabled>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <Target Name="EnforceWindows10Or11Target" BeforeTargets="BeforeBuild">
+    <Error Condition="!$([MSBuild]::IsOSPlatform('Windows'))"
+           Text="Este projeto suporta compilacao exclusivamente em ambientes Windows 10 e Windows 11 via Visual Studio / MSBuild." />
+  </Target>
+
+  <Target Name="RegenerateInvalidDependencyManifest"
+          BeforeTargets="GenerateBuildDependencyFile"
+          Condition="'$(GenerateDependencyFile)' == 'true' and Exists('$(ProjectDepsFilePath)')">
+    <ReadLinesFromFile File="$(ProjectDepsFilePath)">
+      <Output TaskParameter="Lines" ItemName="_NovaMacDependencyManifestLines" />
+    </ReadLinesFromFile>
+    <!-- The SDK writes a JSON object with an opening brace on its own line. -->
+    <Delete Files="$(ProjectDepsFilePath)"
+            Condition="'@(_NovaMacDependencyManifestLines->AnyHaveMetadataValue('Identity', '{'))' != 'true'" />
+  </Target>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.6.250205002" />
+    <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.1742" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="app.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Assets\**\*.png" />
+    <Content Include="EmbeddedQemu\**\*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Manifest Include="$(ApplicationManifest)" />
+  </ItemGroup>
+</Project>

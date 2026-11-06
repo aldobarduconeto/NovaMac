@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Window
+    x:Class="NovaMac.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:NovaMac"
+    Title="NovaMac for Windows — Gerenciador de VMs macOS">
+
+    <Window.SystemBackdrop>
+        <MicaBackdrop Kind="BaseAlt"/>
+    </Window.SystemBackdrop>
+
+    <local:MainPage x:ConnectionId='2' x:Name="RootMainPage" />
+</Window>
+
