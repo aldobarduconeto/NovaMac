@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "NovaMac (Unpackaged .EXE)": {
+      "commandName": "Project"
+    },
+    "NovaMac (MSIX Package)": {
+      "commandName": "MsixPackage"
+    }
+  }
+}

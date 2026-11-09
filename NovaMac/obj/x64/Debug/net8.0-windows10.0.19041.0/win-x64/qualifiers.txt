@@ -1,0 +1,8 @@
+Language=BG
+Language=DE
+Language=FR
+Language=HU
+Language=IT
+Language=SV
+Language=TR
+Language=UK

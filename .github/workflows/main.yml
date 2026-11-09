@@ -1,0 +1,56 @@
+name: NovaMac - MSIX Release
+
+on:
+  push:
+    tags: ['v1.0.0']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  msix:
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - uses: microsoft/setup-msbuild@v2
+
+      - name: Restore dependencies
+        shell: pwsh
+        run: dotnet restore NovaMac/NovaMac.csproj -r win-x64 -p:Platform=x64
+
+      - name: Build MSIX
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $out = Join-Path $env:GITHUB_WORKSPACE 'msix-output'
+          New-Item -ItemType Directory -Force -Path $out | Out-Null
+          msbuild NovaMac/NovaMac.csproj /restore /t:Publish /p:Configuration=Release /p:Platform=x64 /p:RuntimeIdentifier=win-x64 /p:WindowsPackageType=MSIX /p:GenerateAppxPackageOnBuild=true /p:AppxBundle=Never /p:AppxPackageSigningEnabled=false /p:AppxPackageDir="$out\" /p:UapAppxPackageBuildMode=SideloadOnly /verbosity:minimal
+          if ($LASTEXITCODE -ne 0) { throw 'MSBuild failed' }
+          $files = @(Get-ChildItem $out -Recurse -File | Where-Object { $_.Extension -eq '.msix' })
+          if ($files.Count -eq 0) { throw 'No MSIX generated. Check packaged WinUI configuration and manifest.' }
+          New-Item -ItemType Directory -Force dist | Out-Null
+          $files | Copy-Item -Destination dist
+
+      - name: Generate SHA256 checksums
+        shell: pwsh
+        run: |
+          Get-ChildItem dist -Filter *.msix | ForEach-Object {
+            $hash = (Get-FileHash $_.FullName -Algorithm SHA256).Hash
+            "$hash  $($_.Name)" | Out-File -Append -Encoding ascii dist/SHA256SUMS.txt
+          }
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: NovaMac-MSIX-x64
+          path: dist/*
+
+      - name: Publish GitHub Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "${{ github.ref_name }}" dist/* --title "NovaMac ${{ github.ref_name }}" --generate-notes

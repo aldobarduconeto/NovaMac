@@ -1,0 +1,1199 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="NovaMac.MainPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:models="using:NovaMac.Models"
+    Background="Transparent">
+
+    <Page.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.ThemeDictionaries>
+                <ResourceDictionary x:Key="Light">
+                    <SolidColorBrush x:Key="WorkspaceBrush" Color="#2DF5F7FB"/>
+                    <SolidColorBrush x:Key="WorkspaceCardBrush" Color="#EEFFFFFF"/>
+                    <SolidColorBrush x:Key="CardSubtleBrush" Color="#F4F6F9"/>
+                    <SolidColorBrush x:Key="TagBgBrush" Color="#E8ECF2"/>
+                    <SolidColorBrush x:Key="TagFgBrush" Color="#333740"/>
+                    <SolidColorBrush x:Key="AccentTintBrush" Color="#120A84FF"/>
+                </ResourceDictionary>
+                <ResourceDictionary x:Key="Dark">
+                    <SolidColorBrush x:Key="WorkspaceBrush" Color="#3015171D"/>
+                    <SolidColorBrush x:Key="WorkspaceCardBrush" Color="#D920232B"/>
+                    <SolidColorBrush x:Key="CardSubtleBrush" Color="#1E2129"/>
+                    <SolidColorBrush x:Key="TagBgBrush" Color="#2A2D37"/>
+                    <SolidColorBrush x:Key="TagFgBrush" Color="#D2D6E0"/>
+                    <SolidColorBrush x:Key="AccentTintBrush" Color="#200A84FF"/>
+                </ResourceDictionary>
+                <ResourceDictionary x:Key="HighContrast">
+                    <SolidColorBrush x:Key="WorkspaceBrush" Color="{ThemeResource SystemColorWindowColor}"/>
+                    <SolidColorBrush x:Key="WorkspaceCardBrush" Color="{ThemeResource SystemColorWindowColor}"/>
+                    <SolidColorBrush x:Key="CardSubtleBrush" Color="{ThemeResource SystemColorWindowColor}"/>
+                    <SolidColorBrush x:Key="TagBgBrush" Color="{ThemeResource SystemColorWindowColor}"/>
+                    <SolidColorBrush x:Key="TagFgBrush" Color="{ThemeResource SystemColorWindowTextColor}"/>
+                    <SolidColorBrush x:Key="AccentTintBrush" Color="{ThemeResource SystemColorHighlightColor}"/>
+                </ResourceDictionary>
+            </ResourceDictionary.ThemeDictionaries>
+            <CornerRadius x:Key="ControlCornerRadius">8</CornerRadius>
+            <CornerRadius x:Key="CardCornerRadius">12</CornerRadius>
+            <CornerRadius x:Key="OverlayCornerRadius">14</CornerRadius>
+        </ResourceDictionary>
+    </Page.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <!-- Row 0: Sleek Custom TitleBar -->
+            <RowDefinition Height="40"/>
+            <!-- Row 1: Main NavigationView & Content -->
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- ==================== CLEAN INTEGRATED TITLE BAR ==================== -->
+        <Grid x:ConnectionId='2' x:Name="AppTitleBar"
+              Grid.Row="0"
+              Background="Transparent"
+              Padding="14,0,140,0">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Spacing="10">
+                <Border Width="20" Height="20" CornerRadius="5" Margin="0,0,2,0">
+                    <Image Source="ms-appx:///Assets/Square44x44Logo.png" Width="20" Height="20" Stretch="UniformToFill"/>
+                </Border>
+                <TextBlock Text="NovaMac" FontWeight="SemiBold" FontSize="13" VerticalAlignment="Center"/>
+
+                <Border Background="{ThemeResource SubtleFillColorSecondaryBrush}"
+                        CornerRadius="9"
+                        Padding="8,2"
+                        Margin="4,0,0,0"
+                        VerticalAlignment="Center">
+                    <TextBlock x:ConnectionId='126' x:Name="TxtPaneSubtitle"
+                               Text="Verificando ambiente…"
+                               FontSize="11"
+                               Opacity="0.8"/>
+                </Border>
+            </StackPanel>
+        </Grid>
+
+        <!-- ==================== MAIN NAVIGATION VIEW ==================== -->
+        <NavigationView x:ConnectionId='3' x:Name="MainNav"
+                        Grid.Row="1"
+                        PaneDisplayMode="Left"
+                        IsBackButtonVisible="Collapsed"
+                        IsSettingsVisible="False"
+                        OpenPaneLength="210"
+                                                                   >
+
+            <NavigationView.MenuItems>
+                <NavigationViewItem x:ConnectionId='4' x:Name="NavItemLibrary" Content="Biblioteca" Tag="Library" Icon="AllApps" IsSelected="True"/>
+                <NavigationViewItem x:ConnectionId='5' x:Name="NavItemVmEditor" Content="Editor de VMs" Tag="Create" Icon="Add"/>
+                <NavigationViewItem x:ConnectionId='6' x:Name="NavItemDiagnostics" Content="Diagnóstico" Tag="Diagnostics" Icon="Repair"/>
+            </NavigationView.MenuItems>
+
+            <NavigationView.FooterMenuItems>
+                <NavigationViewItem x:ConnectionId='7' Content="Alternar Tema" Tag="ToggleTheme" Icon="Highlight"                               />
+                <NavigationViewItem x:ConnectionId='8' x:Name="NavItemSettings" Content="Configurações" Tag="Settings" Icon="Setting"/>
+            </NavigationView.FooterMenuItems>
+
+            <!-- MAIN WORKSPACE CONTENT AREA -->
+            <Border Margin="0,0,10,10"
+                    CornerRadius="12"
+                    Background="{ThemeResource WorkspaceBrush}"
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                    BorderThickness="1">
+                <Grid Padding="24,18,24,20">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- WinUI Native Status Banner -->
+                    <InfoBar x:ConnectionId='9' x:Name="StatusInfoBar"
+                             Grid.Row="0"
+                             IsOpen="False"
+                             IsClosable="True"
+                             Margin="0,0,0,14"/>
+
+                    <!-- ==================== VIEW 1: VM LIBRARY ==================== -->
+                    <Grid x:ConnectionId='10' x:Name="ViewLibrary" Grid.Row="1" Visibility="Visible">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <!-- Clean Header Section -->
+                        <Grid Grid.Row="0" Margin="0,0,0,14">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                                <TextBlock Text="Máquinas Virtuais" FontSize="22" FontWeight="Bold"/>
+                                <TextBlock Text="Gerencie, configure e execute suas instâncias macOS."
+                                           FontSize="12.5" Opacity="0.7" Margin="0,2,0,0"/>
+                            </StackPanel>
+
+                            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Spacing="8">
+                                <Button x:ConnectionId='123' x:Name="BtnQuickTheme"
+                                                                   
+                                        ToolTipService.ToolTip="Alternar entre Tema Claro e Escuro">
+                                    <StackPanel Orientation="Horizontal" Spacing="6">
+                                        <FontIcon Glyph="&#xE771;" FontSize="12"/>
+                                        <TextBlock Text="Tema"/>
+                                    </StackPanel>
+                                </Button>
+                                <Button x:ConnectionId='124'                             ToolTipService.ToolTip="Recarregar lista de máquinas virtuais">
+                                    <StackPanel Orientation="Horizontal" Spacing="6">
+                                        <FontIcon Glyph="&#xE72C;" FontSize="12"/>
+                                        <TextBlock Text="Atualizar"/>
+                                    </StackPanel>
+                                </Button>
+                                <Button x:ConnectionId='125' Style="{StaticResource AccentButtonStyle}"
+                                                                        >
+                                    <StackPanel Orientation="Horizontal" Spacing="6">
+                                        <FontIcon Glyph="&#xE710;" FontSize="12"/>
+                                        <TextBlock Text="Nova VM"/>
+                                    </StackPanel>
+                                </Button>
+                            </StackPanel>
+                        </Grid>
+
+                        <!-- Clean Toolbar: Search & Version Filter -->
+                        <Border Grid.Row="1"
+                                Background="{ThemeResource WorkspaceCardBrush}"
+                                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                BorderThickness="1"
+                                CornerRadius="10"
+                                Padding="12,8"
+                                Margin="0,0,0,14">
+                            <Grid ColumnSpacing="12">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="220"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <TextBox x:ConnectionId='120' x:Name="TxtSearchVms"
+                                         Grid.Column="0"
+                                         PlaceholderText="Pesquisar por nome, versão, SMBIOS ou porta..."
+                                                                               />
+
+                                <ComboBox x:ConnectionId='121' x:Name="CmbFilterVersion"
+                                          Grid.Column="1"
+                                          HorizontalAlignment="Stretch"
+                                          SelectedIndex="0"
+                                                                                              >
+                                    <x:String>Todas as Versões</x:String>
+                                    <x:String>macOS 27</x:String>
+                                    <x:String>macOS 26 Tahoe</x:String>
+                                    <x:String>macOS Sequoia</x:String>
+                                    <x:String>macOS Sonoma</x:String>
+                                    <x:String>macOS Ventura</x:String>
+                                    <x:String>macOS Monterey</x:String>
+                                    <x:String>macOS Big Sur</x:String>
+                                </ComboBox>
+
+                                <Border Grid.Column="2"
+                                        Background="{ThemeResource TagBgBrush}"
+                                        CornerRadius="6"
+                                        Padding="10,4"
+                                        VerticalAlignment="Center">
+                                    <TextBlock x:ConnectionId='122' x:Name="TxtVmCountSummary"
+                                               Text="0 VMs"
+                                               FontSize="11.5"
+                                               FontWeight="SemiBold"
+                                               Foreground="{ThemeResource TagFgBrush}"/>
+                                </Border>
+                            </Grid>
+                        </Border>
+
+                        <!-- Empty State Card -->
+                        <Border x:ConnectionId='96' x:Name="EmptyLibraryCard"
+                                Grid.Row="2"
+                                Background="{ThemeResource WorkspaceCardBrush}"
+                                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                BorderThickness="1"
+                                CornerRadius="12"
+                                Padding="40,32"
+                                VerticalAlignment="Center"
+                                Visibility="Collapsed">
+                            <StackPanel HorizontalAlignment="Center" Spacing="12">
+                                <Border Width="56" Height="56" CornerRadius="16" HorizontalAlignment="Center">
+                                    <Border.Background>
+                                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                            <GradientStop Color="#0A84FF" Offset="0"/>
+                                            <GradientStop Color="#5E5CE6" Offset="1"/>
+                                        </LinearGradientBrush>
+                                    </Border.Background>
+                                    <Viewbox Width="26" Height="30" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                        <Path Data="M11.6,7.2 C11.6,5.2 13.2,4.1 13.3,4.0 C12.3,2.6 10.8,2.4 10.3,2.4 C9.0,2.3 7.7,3.1 7.1,3.1 C6.4,3.1 5.4,2.4 4.3,2.4 C2.9,2.4 1.6,3.2 0.9,4.5 C-0.6,7.0 0.5,10.8 1.9,12.8 C2.6,13.8 3.4,14.9 4.5,14.9 C5.6,14.8 6.0,14.2 7.3,14.2 C8.5,14.2 8.9,14.9 10.0,14.8 C11.2,14.8 11.9,13.8 12.6,12.8 C13.4,11.6 13.7,10.5 13.7,10.4 C13.7,10.4 11.6,9.6 11.6,7.2 Z M9.4,1.3 C10.0,0.6 10.4,-0.4 10.3,-1.4 C9.4,-1.4 8.3,-0.8 7.7,-0.1 C7.2,0.5 6.7,1.5 6.8,2.5 C7.8,2.6 8.8,2.0 9.4,1.3 Z"
+                                              Fill="White" Stretch="Uniform"/>
+                                    </Viewbox>
+                                </Border>
+
+                                <TextBlock Text="Nenhuma Máquina Virtual Encontrada"
+                                           FontSize="18" FontWeight="SemiBold" HorizontalAlignment="Center"/>
+                                <TextBlock Text="Crie sua primeira máquina virtual macOS (Big Sur até Sequoia, Tahoe e macOS 27). O NovaMac cuida do download da recuperação, firmware UEFI e configuração do QEMU."
+                                           FontSize="12.5" Opacity="0.75" TextAlignment="Center" MaxWidth="520" TextWrapping="Wrap"/>
+                                <Button x:ConnectionId='119' Content="+ Criar Nova Máquina Virtual macOS"
+                                        Style="{StaticResource AccentButtonStyle}"
+                                        HorizontalAlignment="Center"
+                                        Margin="0,4,0,0"
+                                                                        />
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Clean VM List View -->
+                        <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
+                            <ItemsControl x:ConnectionId='97' x:Name="VmsItemsControl">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate                                         >
+                                        <Border x:ConnectionId='99' Background="{ThemeResource WorkspaceCardBrush}"
+                                                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                                BorderThickness="1"
+                                                CornerRadius="12"
+                                                Padding="16,14"
+                                                Margin="0,0,0,10">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+
+                                                <!-- OS Badge & State Indicator -->
+                                                <Border Grid.Column="0" Width="48" Height="48" CornerRadius="12"
+                                                        Background="{ThemeResource AccentTintBrush}"
+                                                        BorderBrush="#0A84FF" BorderThickness="1.2"
+                                                        Margin="0,0,14,0" VerticalAlignment="Center">
+                                                    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="2">
+                                                        <Viewbox Width="14" Height="16" HorizontalAlignment="Center">
+                                                            <Path Data="M11.6,7.2 C11.6,5.2 13.2,4.1 13.3,4.0 C12.3,2.6 10.8,2.4 10.3,2.4 C9.0,2.3 7.7,3.1 7.1,3.1 C6.4,3.1 5.4,2.4 4.3,2.4 C2.9,2.4 1.6,3.2 0.9,4.5 C-0.6,7.0 0.5,10.8 1.9,12.8 C2.6,13.8 3.4,14.9 4.5,14.9 C5.6,14.8 6.0,14.2 7.3,14.2 C8.5,14.2 8.9,14.9 10.0,14.8 C11.2,14.8 11.9,13.8 12.6,12.8 C13.4,11.6 13.7,10.5 13.7,10.4 C13.7,10.4 11.6,9.6 11.6,7.2 Z M9.4,1.3 C10.0,0.6 10.4,-0.4 10.3,-1.4 C9.4,-1.4 8.3,-0.8 7.7,-0.1 C7.2,0.5 6.7,1.5 6.8,2.5 C7.8,2.6 8.8,2.0 9.4,1.3 Z"
+                                                                  Fill="#0A84FF" Stretch="Uniform"/>
+                                                        </Viewbox>
+                                                        <TextBlock x:ConnectionId='118'                              FontSize="10" FontWeight="Bold" HorizontalAlignment="Center"/>
+                                                    </StackPanel>
+                                                </Border>
+
+                                                <!-- Clean VM Details -->
+                                                <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="4">
+                                                    <!-- Title & Badges -->
+                                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                                        <TextBlock x:ConnectionId='114'                      FontSize="15" FontWeight="SemiBold"/>
+                                                        <Border Background="{ThemeResource TagBgBrush}" CornerRadius="5" Padding="6,2" VerticalAlignment="Center">
+                                                            <TextBlock x:ConnectionId='117'                           FontSize="10.5" Foreground="{ThemeResource TagFgBrush}" FontWeight="SemiBold"/>
+                                                        </Border>
+                                                        <Border Background="{ThemeResource SubtleFillColorSecondaryBrush}" CornerRadius="5" Padding="6,2" VerticalAlignment="Center">
+                                                            <StackPanel Orientation="Horizontal" Spacing="4">
+                                                                <Ellipse x:ConnectionId='115' Width="6" Height="6"                                             VerticalAlignment="Center"/>
+                                                                <TextBlock x:ConnectionId='116'                                         FontSize="10.5"                                                   FontWeight="SemiBold"/>
+                                                            </StackPanel>
+                                                        </Border>
+                                                    </StackPanel>
+
+                                                    <!-- Specs Chips -->
+                                                    <TextBlock x:ConnectionId='109'                              FontSize="12" Opacity="0.75"/>
+
+                                                    <!-- Network & Identity Meta -->
+                                                    <StackPanel Orientation="Horizontal" Spacing="6">
+                                                        <Border Background="{ThemeResource TagBgBrush}" CornerRadius="4" Padding="6,2">
+                                                            <StackPanel Orientation="Horizontal" Spacing="4">
+                                                                <TextBlock Text="SSH:" FontSize="10.5" Opacity="0.6"/>
+                                                                <TextBlock x:ConnectionId='112'                                FontSize="10.5" FontFamily="Consolas" FontWeight="SemiBold"/>
+                                                                <TextBlock Text="• VNC:" FontSize="10.5" Opacity="0.6" Margin="4,0,0,0"/>
+                                                                <TextBlock x:ConnectionId='113'                                FontSize="10.5" FontFamily="Consolas" FontWeight="SemiBold"/>
+                                                            </StackPanel>
+                                                        </Border>
+                                                        <TextBlock Text="•" FontSize="11" Opacity="0.4" VerticalAlignment="Center"/>
+                                                        <TextBlock x:ConnectionId='110'                             FontSize="11" FontFamily="Consolas" Opacity="0.75" VerticalAlignment="Center"/>
+                                                        <TextBlock x:ConnectionId='111'                              FontSize="11" FontFamily="Consolas" Opacity="0.6" VerticalAlignment="Center"/>
+                                                    </StackPanel>
+                                                </StackPanel>
+
+                                                <!-- Clean Action Controls -->
+                                                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Spacing="6">
+                                                    <!-- Iniciar (Start) Button -->
+                                                    <Button x:ConnectionId='100' Style="{StaticResource AccentButtonStyle}"
+                                                                          
+                                                                                                            
+                                                                                    
+                                                            ToolTipService.ToolTip="Iniciar Máquina Virtual macOS">
+                                                        <StackPanel Orientation="Horizontal" Spacing="6">
+                                                            <FontIcon Glyph="&#xE768;" FontSize="11"/>
+                                                            <TextBlock Text="Iniciar"/>
+                                                        </StackPanel>
+                                                    </Button>
+
+                                                    <!-- Parar (Stop) Button -->
+                                                    <Button x:ConnectionId='101'               
+                                                                                                           
+                                                                                   
+                                                            ToolTipService.ToolTip="Parar Máquina Virtual em Execução">
+                                                        <StackPanel Orientation="Horizontal" Spacing="6">
+                                                            <FontIcon Glyph="&#xE71A;" FontSize="11" Foreground="#FF453A"/>
+                                                            <TextBlock Text="Parar"/>
+                                                        </StackPanel>
+                                                    </Button>
+
+                                                    <!-- Configurar (Edit) Button -->
+                                                    <Button x:ConnectionId='102'               
+                                                                                   
+                                                            ToolTipService.ToolTip="Editar configurações desta VM">
+                                                        <StackPanel Orientation="Horizontal" Spacing="6">
+                                                            <FontIcon Glyph="&#xE70F;" FontSize="11"/>
+                                                            <TextBlock Text="Configurar"/>
+                                                        </StackPanel>
+                                                    </Button>
+
+                                                    <!-- More Options Dropdown -->
+                                                    <Button ToolTipService.ToolTip="Mais opções">
+                                                        <Button.Content>
+                                                            <FontIcon Glyph="&#xE712;" FontSize="12"/>
+                                                        </Button.Content>
+                                                        <Button.Flyout>
+                                                            <MenuFlyout>
+                                                                <MenuFlyoutItem x:ConnectionId='103' Text="Clonar Máquina Virtual"                                        />
+                                                                <MenuFlyoutItem x:ConnectionId='104' Text="Abrir Pasta do Pacote"                                             />
+                                                                <MenuFlyoutSeparator/>
+                                                                <MenuFlyoutItem x:ConnectionId='105' Text="Copiar Comando QEMU"                                            />
+                                                                <MenuFlyoutItem x:ConnectionId='106' Text="Ver Log do QEMU"                                            />
+                                                                <MenuFlyoutItem x:ConnectionId='107' Text="Resumo Técnico da VM"                                              />
+                                                                <MenuFlyoutSeparator/>
+                                                                <MenuFlyoutItem x:ConnectionId='108' Text="Excluir Máquina Virtual"                                         />
+                                                            </MenuFlyout>
+                                                        </Button.Flyout>
+                                                    </Button>
+                                                </StackPanel>
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </ScrollViewer>
+                    </Grid>
+
+                    <!-- ==================== VIEW 2: DEDICATED VM CREATE & EDIT SETTINGS PAGE ==================== -->
+                    <ScrollViewer x:ConnectionId='11' x:Name="ViewWizard" Grid.Row="1" Visibility="Collapsed" HorizontalScrollMode="Disabled" HorizontalContentAlignment="Stretch" VerticalScrollBarVisibility="Auto">
+                        <StackPanel Spacing="14">
+                            <!-- Page Header -->
+                            <Grid Margin="0,0,0,4">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <StackPanel Grid.Column="0">
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <TextBlock x:ConnectionId='94' x:Name="TxtVmEditorHeaderTitle"
+                                                   Text="Criar Nova Máquina Virtual macOS"
+                                                   FontSize="22"
+                                                   FontWeight="Bold"/>
+                                        <Border Background="{ThemeResource AccentTintBrush}"
+                                                CornerRadius="5"
+                                                Padding="8,3"
+                                                VerticalAlignment="Center">
+                                            <TextBlock x:ConnectionId='95' x:Name="TxtVmEditorModeBadge"
+                                                       Text="MODO CRIAÇÃO"
+                                                       FontSize="10.5"
+                                                       FontWeight="Bold"
+                                                       Foreground="#0A84FF"/>
+                                        </Border>
+                                    </StackPanel>
+                                    <TextBlock x:ConnectionId='93' x:Name="TxtVmEditorSubtitle"
+                                               Text="Configure sistema operacional, vCPU, RAM, disco NVMe/SATA, rede e identidade SMBIOS."
+                                               FontSize="12.5" Opacity="0.7" Margin="0,3,0,0" TextWrapping="Wrap"/>
+                                </StackPanel>
+
+                                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Spacing="8">
+                                    <Button x:ConnectionId='91' x:Name="BtnSwitchToCreateMode"
+                                            Content="+ Nova VM"
+                                            Visibility="Collapsed"
+                                                                            />
+                                    <Button x:ConnectionId='92' Content="Voltar à Biblioteca"
+                                                                          />
+                                </StackPanel>
+                            </Grid>
+
+                            <!-- SECTION 1: OS VERSION & BOOTLOADER -->
+                            <Border Background="{ThemeResource WorkspaceCardBrush}"
+                                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="12"
+                                    Padding="16">
+                                <StackPanel Spacing="10">
+                                    <Grid Margin="0,0,0,2">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0"
+                                                   Text="1. Sistema Operacional &amp; Imagem de Instalação"
+                                                   FontSize="15"
+                                                   FontWeight="SemiBold"
+                                                   VerticalAlignment="Center"/>
+                                        <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
+                                            <Button x:ConnectionId='89'                                        
+                                                    ToolTipService.ToolTip="Consultar catálogo de instaladores oficiais da Apple">
+                                                <StackPanel Orientation="Horizontal" Spacing="6">
+                                                    <FontIcon Glyph="&#xE774;" FontSize="12" Foreground="#0A84FF"/>
+                                                    <TextBlock Text="Catálogo Apple"/>
+                                                </StackPanel>
+                                            </Button>
+                                            <Button x:ConnectionId='90'                                   
+                                                    ToolTipService.ToolTip="Selecionar imagem local (.dmg, .iso, .img)">
+                                                <StackPanel Orientation="Horizontal" Spacing="6">
+                                                    <FontIcon Glyph="&#xED25;" FontSize="12" Foreground="#30D158"/>
+                                                    <TextBlock Text="Imagem Local..."/>
+                                                </StackPanel>
+                                            </Button>
+                                        </StackPanel>
+                                    </Grid>
+
+                                    <!-- Catalog Grid -->
+                                    <GridView x:ConnectionId='76' x:Name="CatalogGridView"
+                                              SelectionMode="Single"
+                                                                                                 >
+                                        <GridView.ItemTemplate>
+                                            <DataTemplate                                 >
+                                                <Border x:ConnectionId='84' Width="270"
+                                                        Padding="12,10"
+                                                        Margin="3"
+                                                        CornerRadius="10"
+                                                        Background="{ThemeResource CardSubtleBrush}"
+                                                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                                        BorderThickness="1">
+                                                    <StackPanel Spacing="5">
+                                                        <Grid>
+                                                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                                                <Viewbox Width="12" Height="14" VerticalAlignment="Center">
+                                                                    <Path Data="M11.6,7.2 C11.6,5.2 13.2,4.1 13.3,4.0 C12.3,2.6 10.8,2.4 10.3,2.4 C9.0,2.3 7.7,3.1 7.1,3.1 C6.4,3.1 5.4,2.4 4.3,2.4 C2.9,2.4 1.6,3.2 0.9,4.5 C-0.6,7.0 0.5,10.8 1.9,12.8 C2.6,13.8 3.4,14.9 4.5,14.9 C5.6,14.8 6.0,14.2 7.3,14.2 C8.5,14.2 8.9,14.9 10.0,14.8 C11.2,14.8 11.9,13.8 12.6,12.8 C13.4,11.6 13.7,10.5 13.7,10.4 C13.7,10.4 11.6,9.6 11.6,7.2 Z M9.4,1.3 C10.0,0.6 10.4,-0.4 10.3,-1.4 C9.4,-1.4 8.3,-0.8 7.7,-0.1 C7.2,0.5 6.7,1.5 6.8,2.5 C7.8,2.6 8.8,2.0 9.4,1.3 Z"
+                                                                          Fill="#0A84FF" Stretch="Uniform"/>
+                                                                </Viewbox>
+                                                                <TextBlock x:ConnectionId='88'                      FontSize="13.5" FontWeight="SemiBold"/>
+                                                            </StackPanel>
+                                                            <Border Background="{ThemeResource TagBgBrush}" CornerRadius="4" Padding="5,1" HorizontalAlignment="Right">
+                                                                <TextBlock x:ConnectionId='87'                           FontSize="10" Foreground="#0A84FF" FontWeight="SemiBold"/>
+                                                            </Border>
+                                                        </Grid>
+                                                        <TextBlock x:ConnectionId='85'                         
+                                                                   FontSize="11"
+                                                                   Opacity="0.75"
+                                                                   TextWrapping="Wrap"
+                                                                   Height="30"/>
+                                                        <TextBlock x:ConnectionId='86'                         FontSize="10" Opacity="0.5" FontFamily="Consolas"/>
+                                                    </StackPanel>
+                                                </Border>
+                                            </DataTemplate>
+                                        </GridView.ItemTemplate>
+                                    </GridView>
+
+                                    <!-- Sub-Version & Distribution Channel -->
+                                    <Border Background="{ThemeResource CardSubtleBrush}"
+                                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                            BorderThickness="1"
+                                            CornerRadius="10"
+                                            Padding="14,12">
+                                        <StackPanel Spacing="8">
+                                            <Grid ColumnSpacing="12">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="2.3*"/>
+                                                    <ColumnDefinition Width="1.2*"/>
+                                                </Grid.ColumnDefinitions>
+
+                                                <StackPanel Grid.Column="0" Spacing="4">
+                                                    <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                                                        <TextBlock Text="Versão Específica / Build" FontSize="11.5" FontWeight="Medium"/>
+                                                        <ProgressRing x:ConnectionId='81' x:Name="PrgLoadingVersions" Width="12" Height="12" IsActive="False" Visibility="Collapsed"/>
+                                                        <Button x:ConnectionId='82' x:Name="BtnRefreshSubVersions"
+                                                                                                   
+                                                                Padding="4,1"
+                                                                ToolTipService.ToolTip="Atualizar sub-versões na Apple">
+                                                            <FontIcon Glyph="&#xE72C;" FontSize="10"/>
+                                                        </Button>
+                                                    </StackPanel>
+                                                    <ComboBox x:ConnectionId='80' x:Name="CmbExactVersion"
+                                                              HorizontalAlignment="Stretch"
+                                                                                                                 />
+                                                </StackPanel>
+
+                                                <ComboBox x:ConnectionId='79' x:Name="CmbReleaseChannel"
+                                                          Grid.Column="1"
+                                                          Header="Canal de Download Apple"
+                                                          HorizontalAlignment="Stretch"
+                                                                                                               >
+                                                    <ComboBoxItem Content="Estável Oficial (Default)" Tag="default"/>
+                                                    <ComboBoxItem Content="Developer Seed / Beta (Latest)" Tag="latest"/>
+                                                    <ComboBoxItem Content="Instalador Oficial Apple (InstallAssistant)" Tag="installer"/>
+                                                </ComboBox>
+                                            </Grid>
+
+                                            <TextBlock x:ConnectionId='78' x:Name="TxtVersionDetails"
+                                                       FontSize="11"
+                                                       Opacity="0.7"
+                                                       Text="Selecione a versão exata que deseja instalar ou utilize a estável padrão recomendada."/>
+                                        </StackPanel>
+                                    </Border>
+
+                                    <TextBlock x:ConnectionId='77' x:Name="TxtCustomImageSelected"
+                                               FontSize="11.5"
+                                               Foreground="#30D158"
+                                               Visibility="Collapsed"/>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- SECTION 2: HARDWARE & PROCESSING -->
+                            <Border Background="{ThemeResource WorkspaceCardBrush}"
+                                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="12"
+                                    Padding="16">
+                                <StackPanel Spacing="12">
+                                    <TextBlock Text="2. Recursos de Processamento &amp; Memória"
+                                               FontSize="15" FontWeight="SemiBold"/>
+
+                                    <Grid ColumnSpacing="14" RowSpacing="12">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+
+                                        <TextBox x:ConnectionId='71' x:Name="TxtVmName"
+                                                 Grid.Row="0" Grid.Column="0"
+                                                 Header="Nome da VM"
+                                                 Text="macOS Sequoia VM"/>
+
+                                        <ComboBox x:ConnectionId='72' x:Name="CmbCpuCores"
+                                                  Grid.Row="0" Grid.Column="1"
+                                                  Header="Núcleos de CPU (vCPUs)"
+                                                  HorizontalAlignment="Stretch"
+                                                  SelectedIndex="1">
+                                            <x:String>2 Núcleos</x:String>
+                                            <x:String>4 Núcleos (Recomendado)</x:String>
+                                            <x:String>6 Núcleos</x:String>
+                                            <x:String>8 Núcleos</x:String>
+                                            <x:String>12 Núcleos</x:String>
+                                            <x:String>16 Núcleos</x:String>
+                                        </ComboBox>
+
+                                        <ComboBox x:ConnectionId='73' x:Name="CmbRamGb"
+                                                  Grid.Row="0" Grid.Column="2"
+                                                  Header="Memória RAM (GB)"
+                                                  HorizontalAlignment="Stretch"
+                                                  SelectedIndex="2">
+                                            <x:String>4 GB</x:String>
+                                            <x:String>6 GB</x:String>
+                                            <x:String>8 GB (Recomendado)</x:String>
+                                            <x:String>12 GB</x:String>
+                                            <x:String>16 GB</x:String>
+                                            <x:String>24 GB</x:String>
+                                            <x:String>32 GB</x:String>
+                                            <x:String>64 GB</x:String>
+                                        </ComboBox>
+
+                                        <ComboBox x:ConnectionId='74' x:Name="CmbCpuProfile"
+                                                  Grid.Row="1" Grid.Column="0"
+                                                  Header="Perfil de CPU QEMU"
+                                                  HorizontalAlignment="Stretch"
+                                                  SelectedIndex="0">
+                                            <x:String>Cascadelake-Server (macOS 15 / 26 / 27)</x:String>
+                                            <x:String>Haswell-noTSX (macOS 13 / 14)</x:String>
+                                            <x:String>Penryn (macOS 11 / 12 Legado)</x:String>
+                                        </ComboBox>
+
+                                        <ToggleSwitch x:ConnectionId='75' x:Name="TglMountRecovery"
+                                                      Grid.Row="1" Grid.Column="1"
+                                                      Header="Mídia de Recuperação"
+                                                      IsOn="True"
+                                                      OnContent="Montada no Boot"
+                                                      OffContent="Desconectada"/>
+
+                                        <StackPanel Grid.Row="1" Grid.Column="2" VerticalAlignment="Center">
+                                            <TextBlock Text="Aceleração WHPX" FontSize="11" Opacity="0.6"/>
+                                            <TextBlock Text="Hipervisor Nativo Ativo" FontSize="12.5" FontWeight="SemiBold" Foreground="#30D158"/>
+                                        </StackPanel>
+                                    </Grid>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- SECTION 3: STORAGE, VIDEO & NETWORKING -->
+                            <Border Background="{ThemeResource WorkspaceCardBrush}"
+                                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="12"
+                                    Padding="16">
+                                <StackPanel Spacing="12">
+                                    <TextBlock Text="3. Armazenamento, Vídeo &amp; Conectividade"
+                                               FontSize="15" FontWeight="SemiBold"/>
+
+                                    <Grid ColumnSpacing="14" RowSpacing="12">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+
+                                        <ComboBox x:ConnectionId='61' x:Name="CmbDiskGb"
+                                                  Grid.Row="0" Grid.Column="0"
+                                                  Header="Disco Virtual (GB)"
+                                                  HorizontalAlignment="Stretch"
+                                                  SelectedIndex="1">
+                                            <x:String>64 GB</x:String>
+                                            <x:String>80 GB (Recomendado)</x:String>
+                                            <x:String>120 GB</x:String>
+                                            <x:String>200 GB</x:String>
+                                            <x:String>500 GB</x:String>
+                                            <x:String>1000 GB</x:String>
+                                        </ComboBox>
+
+                                        <ComboBox x:ConnectionId='62' x:Name="CmbResolution"
+                                                  Grid.Row="0" Grid.Column="1"
+                                                  Header="Resolução UEFI/OVMF"
+                                                  HorizontalAlignment="Stretch"
+                                                  SelectedIndex="1">
+                                            <x:String>1600x900</x:String>
+                                            <x:String>1920x1080 (Full HD)</x:String>
+                                            <x:String>2560x1440 (QHD)</x:String>
+                                            <x:String>3840x2160 (4K UHD)</x:String>
+                                        </ComboBox>
+
+                                        <ComboBox x:ConnectionId='63' x:Name="CmbVgaAdapter"
+                                                  Grid.Row="0" Grid.Column="2"
+                                                  Header="Controlador Gráfico (-vga)"
+                                                  HorizontalAlignment="Stretch"
+                                                  SelectedIndex="0">
+                                            <x:String>std (Padrão VESA — Recomendado)</x:String>
+                                            <x:String>vmware (VMware SVGA-II)</x:String>
+                                            <x:String>virtio (VirtIO GPU)</x:String>
+                                            <x:String>cirrus (Cirrus Logic)</x:String>
+                                        </ComboBox>
+
+                                        <ComboBox x:ConnectionId='64' x:Name="CmbNetworkCard"
+                                                  Grid.Row="1" Grid.Column="0"
+                                                  Header="Placa de Rede Virtual"
+                                                  HorizontalAlignment="Stretch"
+                                                  SelectedIndex="0">
+                                            <x:String>vmxnet3 (VMware Paravirtualizado)</x:String>
+                                            <x:String>e1000-82545em (Intel Gigabit)</x:String>
+                                        </ComboBox>
+
+                                        <TextBox x:ConnectionId='65' x:Name="TxtVmSshPort"
+                                                 Grid.Row="1" Grid.Column="1"
+                                                 Header="Porta SSH Host (localhost -> :22)"
+                                                 Text="2222"/>
+
+                                        <TextBox x:ConnectionId='66' x:Name="TxtVmVncPort"
+                                                 Grid.Row="1" Grid.Column="2"
+                                                 Header="Porta VNC Host (localhost -> :5900)"
+                                                 Text="5900"/>
+
+                                        <Grid Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" ColumnSpacing="8">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBox x:ConnectionId='69' x:Name="TxtSharedFolder"
+                                                     Grid.Column="0"
+                                                     Header="Pasta Compartilhada Windows (FAT/RW)"
+                                                     PlaceholderText="Opcional — Ex: C:\Users\aldo\Downloads"/>
+                                            <Button x:ConnectionId='70' Grid.Column="1"
+                                                    Content="Procurar..."
+                                                    VerticalAlignment="Bottom"
+                                                                                       />
+                                        </Grid>
+
+                                        <ToggleSwitch x:ConnectionId='67' x:Name="TglEnableAudio"
+                                                      Grid.Row="2" Grid.Column="2"
+                                                      Header="Áudio Intel HDA"
+                                                      IsOn="True"
+                                                      OnContent="Ativado"
+                                                      OffContent="Desativado"/>
+
+                                        <ToggleSwitch x:ConnectionId='68' x:Name="TglFullscreen"
+                                                      Grid.Row="3" Grid.ColumnSpan="3"
+                                                      Header="Tela Cheia no QEMU"
+                                                      OnContent="Tela Cheia"
+                                                      OffContent="Em Janela"/>
+                                    </Grid>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- SECTION 4: APPLE SMBIOS & OPENCORE -->
+                            <Border Background="{ThemeResource WorkspaceCardBrush}"
+                                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="12"
+                                    Padding="16">
+                                <StackPanel Spacing="12">
+                                    <Grid>
+                                        <TextBlock Text="4. Identidade Apple (SMBIOS) &amp; OpenCore"
+                                                   FontSize="15" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                        <Button x:ConnectionId='60' Content="Gerar Nova Identidade"
+                                                HorizontalAlignment="Right"
+                                                                                 />
+                                    </Grid>
+
+                                    <Grid ColumnSpacing="14" RowSpacing="12">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+
+                                        <ComboBox x:ConnectionId='53' x:Name="CmbSmbiosModel"
+                                                  Grid.Row="0" Grid.Column="0"
+                                                  Header="Modelo SMBIOS"
+                                                  HorizontalAlignment="Stretch"
+                                                  SelectedIndex="0">
+                                            <x:String>MacPro7,1 (Mac Pro 2019 — macOS 15/26/27)</x:String>
+                                            <x:String>iMacPro1,1 (iMac Pro 2017 — macOS 11 a 14)</x:String>
+                                        </ComboBox>
+
+                                        <TextBox x:ConnectionId='54' x:Name="TxtSerialNumber"
+                                                 Grid.Row="0" Grid.Column="1"
+                                                 Header="Número de Série (Serial)"
+                                                 FontFamily="Consolas"/>
+
+                                        <TextBox x:ConnectionId='55' x:Name="TxtBoardSerial"
+                                                 Grid.Row="0" Grid.Column="2"
+                                                 Header="Board Serial (MLB)"
+                                                 FontFamily="Consolas"/>
+
+                                        <TextBox x:ConnectionId='56' x:Name="TxtSystemUuid"
+                                                 Grid.Row="1" Grid.Column="0"
+                                                 Header="System UUID"
+                                                 FontFamily="Consolas"/>
+
+                                        <TextBox x:ConnectionId='57' x:Name="TxtRomMac"
+                                                 Grid.Row="1" Grid.Column="1"
+                                                 Header="MAC Address ROM"
+                                                 FontFamily="Consolas"/>
+
+                                        <TextBox x:ConnectionId='58' x:Name="TxtCustomQemuArgs"
+                                                 Grid.Row="1" Grid.Column="2"
+                                                 Header="Argumentos Extras QEMU"
+                                                 PlaceholderText="Ex: -usb -device usb-host..."
+                                                 FontFamily="Consolas"/>
+
+                                        <TextBox x:ConnectionId='59' x:Name="TxtOpenCoreBootArgs"
+                                                 Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3"
+                                                 Header="Argumentos de Boot OpenCore (boot-args)"
+                                                 Text="-v keepsyms=1 debug=0x100 agdpmod=pikera revpatch=sbvmm,cpuname -lilubetaall -cryptbeta"
+                                                 FontFamily="Consolas"/>
+                                    </Grid>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- SECTION 5: ACTION & PROGRESS FOOTER -->
+                            <Border Background="{ThemeResource WorkspaceCardBrush}"
+                                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="12"
+                                    Padding="16">
+                                <StackPanel Spacing="10">
+                                    <Grid>
+                                        <StackPanel Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+                                            <ProgressRing x:ConnectionId='50' x:Name="CreationProgressRing" IsActive="False" Width="22" Height="22"/>
+                                            <StackPanel>
+                                                <TextBlock x:ConnectionId='51' x:Name="TxtProgressStage"
+                                                           Text="Pronto para criar ou salvar as configurações da VM."
+                                                           FontSize="13" FontWeight="SemiBold"/>
+                                                <TextBlock x:ConnectionId='52' x:Name="TxtProgressDetails"
+                                                           Text="O OpenCore, firmware OVMF e BaseSystem serão reutilizados do cache."
+                                                           FontSize="11.5" Opacity="0.7"/>
+                                            </StackPanel>
+                                        </StackPanel>
+
+                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" Spacing="8">
+                                            <Button x:ConnectionId='47' x:Name="BtnCancelCreation"
+                                                    Content="Cancelar"
+                                                    Visibility="Collapsed"
+                                                                                   />
+
+                                            <Button x:ConnectionId='48' x:Name="BtnSaveEditedVm"
+                                                    Content="Salvar Alterações"
+                                                    Style="{StaticResource AccentButtonStyle}"
+                                                    Visibility="Collapsed"
+                                                                                 />
+
+                                            <Button x:ConnectionId='49' x:Name="BtnCreateVm"
+                                                    Content="Baixar macOS &amp; Criar VM"
+                                                    Style="{StaticResource AccentButtonStyle}"
+                                                                             />
+                                        </StackPanel>
+                                    </Grid>
+
+                                    <ProgressBar x:ConnectionId='46' x:Name="CreationProgressBar" Minimum="0" Maximum="100" Value="0"/>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+                    </ScrollViewer>
+
+                    <!-- ==================== VIEW 3: DIAGNOSTICS ==================== -->
+                    <ScrollViewer x:ConnectionId='12' x:Name="ViewDiagnostics" Grid.Row="1" Visibility="Collapsed" HorizontalScrollMode="Disabled" HorizontalContentAlignment="Stretch" VerticalScrollBarVisibility="Auto">
+                        <StackPanel Spacing="16">
+                            <StackPanel>
+                                <TextBlock Text="Diagnóstico do Sistema" FontSize="22" FontWeight="Bold"/>
+                                <TextBlock Text="Verifique os componentes de virtualização e o status do motor QEMU e hipervisor WHPX."
+                                           FontSize="12.5" Opacity="0.7" Margin="0,2,0,0"/>
+                            </StackPanel>
+
+                            <!-- Status Cards Grid -->
+                            <Grid ColumnSpacing="12" RowSpacing="12">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <!-- Card 1: QEMU Engine -->
+                                <Border Grid.Column="0"
+                                        Background="{ThemeResource WorkspaceCardBrush}"
+                                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                        BorderThickness="1"
+                                        CornerRadius="12"
+                                        Padding="16">
+                                    <StackPanel Spacing="8">
+                                        <StackPanel Orientation="Horizontal" Spacing="8">
+                                            <Border Width="32" Height="32" CornerRadius="8" Background="{ThemeResource AccentTintBrush}">
+                                                <FontIcon Glyph="&#xE756;" FontSize="14" Foreground="#0A84FF" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                            <StackPanel VerticalAlignment="Center">
+                                                <TextBlock Text="Motor QEMU" FontSize="13.5" FontWeight="SemiBold"/>
+                                                <TextBlock x:ConnectionId='45' x:Name="TxtDiagQemu" Text="Verificando..." FontSize="11.5" Opacity="0.8"/>
+                                            </StackPanel>
+                                        </StackPanel>
+                                        <TextBlock Text="Executável:" FontSize="10.5" Opacity="0.6"/>
+                                        <TextBlock x:ConnectionId='44' x:Name="TxtDiagQemuPath" Text="-" FontSize="10.5" FontFamily="Consolas" TextWrapping="Wrap" Opacity="0.8"/>
+                                    </StackPanel>
+                                </Border>
+
+                                <!-- Card 2: WHPX Hypervisor -->
+                                <Border Grid.Column="1"
+                                        Background="{ThemeResource WorkspaceCardBrush}"
+                                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                        BorderThickness="1"
+                                        CornerRadius="12"
+                                        Padding="16">
+                                    <StackPanel Spacing="8">
+                                        <StackPanel Orientation="Horizontal" Spacing="8">
+                                            <Border Width="32" Height="32" CornerRadius="8" Background="{ThemeResource AccentTintBrush}">
+                                                <FontIcon Glyph="&#xE950;" FontSize="14" Foreground="#30D158" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                            <StackPanel VerticalAlignment="Center">
+                                                <TextBlock Text="Hipervisor Windows" FontSize="13.5" FontWeight="SemiBold"/>
+                                                <TextBlock x:ConnectionId='43' x:Name="TxtDiagWhpx" Text="Verificando..." FontSize="11.5" Opacity="0.8"/>
+                                            </StackPanel>
+                                        </StackPanel>
+                                        <TextBlock Text="Aceleração de hardware obrigatória para executar macOS com alta performance."
+                                                   FontSize="11" Opacity="0.7" TextWrapping="Wrap"/>
+                                    </StackPanel>
+                                </Border>
+
+                                <!-- Card 3: Host CPU -->
+                                <Border Grid.Column="2"
+                                        Background="{ThemeResource WorkspaceCardBrush}"
+                                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                        BorderThickness="1"
+                                        CornerRadius="12"
+                                        Padding="16">
+                                    <StackPanel Spacing="8">
+                                        <StackPanel Orientation="Horizontal" Spacing="8">
+                                            <Border Width="32" Height="32" CornerRadius="8" Background="{ThemeResource AccentTintBrush}">
+                                                <FontIcon Glyph="&#xE7F4;" FontSize="14" Foreground="#FF9F0A" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                            <StackPanel VerticalAlignment="Center">
+                                                <TextBlock Text="Processador do Host" FontSize="13.5" FontWeight="SemiBold"/>
+                                                <TextBlock x:ConnectionId='42' x:Name="TxtDiagCpu" Text="-" FontSize="11.5" Opacity="0.8" TextWrapping="Wrap"/>
+                                            </StackPanel>
+                                        </StackPanel>
+                                        <TextBlock Text="Suporte a instruções SSE4.2, AVX2 e virtualização de CPU."
+                                                   FontSize="11" Opacity="0.7" TextWrapping="Wrap"/>
+                                    </StackPanel>
+                                </Border>
+                            </Grid>
+
+                            <!-- Diagnostic Actions -->
+                            <StackPanel Orientation="Horizontal" Spacing="10" Margin="0,4,0,0">
+                                <Button x:ConnectionId='39'                                >
+                                    <StackPanel Orientation="Horizontal" Spacing="6">
+                                        <FontIcon Glyph="&#xE72C;" FontSize="12"/>
+                                        <TextBlock Text="Revalidar Diagnóstico"/>
+                                    </StackPanel>
+                                </Button>
+                                <Button x:ConnectionId='40' Style="{StaticResource AccentButtonStyle}"
+                                                                          >
+                                    <StackPanel Orientation="Horizontal" Spacing="6">
+                                        <FontIcon Glyph="&#xE896;" FontSize="12"/>
+                                        <TextBlock Text="Instalar QEMU (Winget)"/>
+                                    </StackPanel>
+                                </Button>
+                                <Button x:ConnectionId='41'                            >
+                                    <StackPanel Orientation="Horizontal" Spacing="6">
+                                        <FontIcon Glyph="&#xE7EF;" FontSize="12"/>
+                                        <TextBlock Text="Ativar WHPX (PowerShell Admin)"/>
+                                    </StackPanel>
+                                </Button>
+                            </StackPanel>
+                        </StackPanel>
+                    </ScrollViewer>
+
+                    <!-- ==================== VIEW 4: APP SETTINGS ==================== -->
+                    <ScrollViewer x:ConnectionId='13' x:Name="ViewSettings" Grid.Row="1" Visibility="Collapsed" HorizontalScrollMode="Disabled" HorizontalContentAlignment="Stretch" VerticalScrollBarVisibility="Auto">
+                        <StackPanel Spacing="14">
+                            <Grid Margin="0,0,0,4">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <StackPanel Grid.Column="0">
+                                    <TextBlock Text="Configurações" FontSize="22" FontWeight="Bold"/>
+                                    <TextBlock Text="Personalize a aparência, caminhos de armazenamento e hardware padrão."
+                                               FontSize="12.5" Opacity="0.7" Margin="0,2,0,0"/>
+                                </StackPanel>
+
+                                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Spacing="8">
+                                    <Button x:ConnectionId='37' Content="Restaurar Padrões"                               />
+                                    <Button x:ConnectionId='38' Content="Salvar Configurações"
+                                            Style="{StaticResource AccentButtonStyle}"
+                                                                         />
+                                </StackPanel>
+                            </Grid>
+
+                            <!-- 1. APARÊNCIA & TEMA -->
+                            <Border Background="{ThemeResource WorkspaceCardBrush}"
+                                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="12"
+                                    Padding="16">
+                                <StackPanel Spacing="12">
+                                    <TextBlock Text="1. Aparência Visual &amp; Material de Fundo" FontSize="15" FontWeight="SemiBold"/>
+
+                                    <Grid ColumnSpacing="16">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <ComboBox x:ConnectionId='35' x:Name="CmbSettingsTheme"
+                                                  Grid.Column="0"
+                                                  Header="Tema do Aplicativo"
+                                                  HorizontalAlignment="Stretch"
+                                                                                                      >
+                                            <ComboBoxItem Content="Padrão do Windows" Tag="Default"/>
+                                            <ComboBoxItem Content="Modo Claro (Light)" Tag="Light"/>
+                                            <ComboBoxItem Content="Modo Escuro (Dark)" Tag="Dark"/>
+                                        </ComboBox>
+
+                                        <ComboBox x:ConnectionId='36' x:Name="CmbSettingsBackdrop"
+                                                  Grid.Column="1"
+                                                  Header="Material de Fundo (Backdrop)"
+                                                  HorizontalAlignment="Stretch"
+                                                                                                         >
+                                            <ComboBoxItem Content="Mica Alt (Suave)" Tag="MicaAlt"/>
+                                            <ComboBoxItem Content="Mica Padrão (Windows 11)" Tag="Mica"/>
+                                            <ComboBoxItem Content="Acrílico Translúcido" Tag="Acrylic"/>
+                                        </ComboBox>
+                                    </Grid>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- 2. ARMAZENAMENTO & PASTAS -->
+                            <Border Background="{ThemeResource WorkspaceCardBrush}"
+                                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="12"
+                                    Padding="16">
+                                <StackPanel Spacing="12">
+                                    <TextBlock Text="2. Pastas de Armazenamento de VMs &amp; Cache" FontSize="15" FontWeight="SemiBold"/>
+
+                                    <Grid ColumnSpacing="8">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBox x:ConnectionId='32' x:Name="TxtSettingsVmsDir"
+                                                 Grid.Column="0"
+                                                 Header="Pasta dos Pacotes de VMs (.novavm)"
+                                                 PlaceholderText="Padrão: %LOCALAPPDATA%\NovaMac\VMs"/>
+                                        <Button x:ConnectionId='33' Grid.Column="1" Content="Procurar..." VerticalAlignment="Bottom"                              />
+                                        <Button x:ConnectionId='34' Grid.Column="2" Content="Abrir" VerticalAlignment="Bottom"                            />
+                                    </Grid>
+
+                                    <Grid ColumnSpacing="8">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBox x:ConnectionId='28' x:Name="TxtSettingsCacheDir"
+                                                 Grid.Column="0"
+                                                 Header="Pasta de Cache de Imagens (Recovery, OpenCore, OVMF)"
+                                                 PlaceholderText="Padrão: %LOCALAPPDATA%\NovaMac\Cache"/>
+                                        <Button x:ConnectionId='29' Grid.Column="1" Content="Procurar..." VerticalAlignment="Bottom"                                />
+                                        <Button x:ConnectionId='30' Grid.Column="2" Content="Abrir" VerticalAlignment="Bottom"                              />
+                                        <Button x:ConnectionId='31' Grid.Column="3" Content="Limpar Cache" VerticalAlignment="Bottom"                            />
+                                    </Grid>
+
+                                    <TextBlock x:ConnectionId='27' x:Name="TxtCacheUsageInfo"
+                                               Text="Calculando uso do cache..."
+                                               FontSize="11.5"
+                                               Opacity="0.7"/>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- 3. EXECUTÁVEIS DO QEMU -->
+                            <Border Background="{ThemeResource WorkspaceCardBrush}"
+                                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="12"
+                                    Padding="16">
+                                <StackPanel Spacing="12">
+                                    <TextBlock Text="3. Executáveis do QEMU (Opcional — Auto-detectado)" FontSize="15" FontWeight="SemiBold"/>
+
+                                    <Grid ColumnSpacing="8">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBox x:ConnectionId='25' x:Name="TxtSettingsQemuSys"
+                                                 Grid.Column="0"
+                                                 Header="Caminho para qemu-system-x86_64.exe"
+                                                 PlaceholderText="Ex: C:\Program Files\qemu\qemu-system-x86_64.exe"/>
+                                        <Button x:ConnectionId='26' Grid.Column="1" Content="Selecionar..." VerticalAlignment="Bottom"                               />
+                                    </Grid>
+
+                                    <Grid ColumnSpacing="8">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBox x:ConnectionId='23' x:Name="TxtSettingsQemuImg"
+                                                 Grid.Column="0"
+                                                 Header="Caminho para qemu-img.exe"
+                                                 PlaceholderText="Ex: C:\Program Files\qemu\qemu-img.exe"/>
+                                        <Button x:ConnectionId='24' Grid.Column="1" Content="Selecionar..." VerticalAlignment="Bottom"                               />
+                                    </Grid>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- 4. PADRÕES PARA NOVAS VMS -->
+                            <Border Background="{ThemeResource WorkspaceCardBrush}"
+                                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="12"
+                                    Padding="16">
+                                <StackPanel Spacing="12">
+                                    <TextBlock Text="4. Hardware Padrão para Novas VMs" FontSize="15" FontWeight="SemiBold"/>
+
+                                    <Grid ColumnSpacing="14" RowSpacing="12">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+
+                                        <TextBox x:ConnectionId='17' x:Name="TxtSettingsDefaultCores"
+                                                 Grid.Row="0" Grid.Column="0"
+                                                 Header="vCPUs Padrão"
+                                                 Text="4"/>
+
+                                        <TextBox x:ConnectionId='18' x:Name="TxtSettingsDefaultRam"
+                                                 Grid.Row="0" Grid.Column="1"
+                                                 Header="Memória RAM Padrão (GB)"
+                                                 Text="8"/>
+
+                                        <TextBox x:ConnectionId='19' x:Name="TxtSettingsDefaultDisk"
+                                                 Grid.Row="0" Grid.Column="2"
+                                                 Header="Disco Padrão (GB)"
+                                                 Text="80"/>
+
+                                        <ComboBox x:ConnectionId='20' x:Name="CmbSettingsDefaultResolution"
+                                                  Grid.Row="1" Grid.Column="0"
+                                                  Header="Resolução Padrão"
+                                                  HorizontalAlignment="Stretch">
+                                            <x:String>1600x900</x:String>
+                                            <x:String>1920x1080</x:String>
+                                            <x:String>2560x1440</x:String>
+                                            <x:String>3840x2160</x:String>
+                                        </ComboBox>
+
+                                        <ToggleSwitch x:ConnectionId='21' x:Name="TglSettingsDefaultAudio"
+                                                      Grid.Row="1" Grid.Column="1"
+                                                      Header="Áudio Intel HDA"
+                                                      IsOn="True"
+                                                      OnContent="Ativado"
+                                                      OffContent="Desativado"/>
+
+                                        <ToggleSwitch x:ConnectionId='22' x:Name="TglSettingsDefaultFullscreen"
+                                                      Grid.Row="1" Grid.Column="2"
+                                                      Header="Tela Cheia para Novas VMs"
+                                                      OnContent="Tela Cheia"
+                                                      OffContent="Em Janela"/>
+                                    </Grid>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- 5. REDE & PORTAS -->
+                            <Border Background="{ThemeResource WorkspaceCardBrush}"
+                                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="12"
+                                    Padding="16">
+                                <StackPanel Spacing="12">
+                                    <TextBlock Text="5. Rede &amp; Portas Multi-VM" FontSize="15" FontWeight="SemiBold"/>
+
+                                    <Grid ColumnSpacing="14">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBox x:ConnectionId='14' x:Name="TxtSettingsBaseSsh"
+                                                 Grid.Column="0"
+                                                 Header="Porta SSH Inicial"
+                                                 Text="2222"/>
+
+                                        <TextBox x:ConnectionId='15' x:Name="TxtSettingsBaseVnc"
+                                                 Grid.Column="1"
+                                                 Header="Porta VNC Inicial"
+                                                 Text="5900"/>
+
+                                        <ToggleSwitch x:ConnectionId='16' x:Name="TglSettingsAutoPorts"
+                                                      Grid.Column="2"
+                                                      Header="Portas Exclusivas por VM"
+                                                      IsOn="True"
+                                                      OnContent="Auto-incrementar"
+                                                      OffContent="Porta Fixa"/>
+                                    </Grid>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+                    </ScrollViewer>
+                </Grid>
+            </Border>
+        </NavigationView>
+    </Grid>
+</Page>
+
